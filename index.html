@@ -111,7 +111,7 @@ body{max-width:1280px}body>p{display:none}
  body.gameImmersive #exitGameFull{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;padding:8px 9px;background:#30435b;color:white;border:1px solid #7890ac;border-radius:8px;font-size:12px;touch-action:manipulation}
 }
 
-/* v2.6: the on-screen drum itself is the touch surface; no redundant strike pads. */
+/* v2.8: the on-screen drum itself is the touch surface; no redundant strike pads. */
 #game{touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}
 .gameHitArea{display:flex!important;justify-content:center;align-items:center}
 .gameHitArea #score{grid-column:auto!important;text-align:center}
@@ -240,8 +240,14 @@ function strike(hand){
  else flashes.push({hand,text:'MISS',at:performance.now()});
  updateScore();
 }
-function draw(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.height,yHit=H-158,cx=W/2,off=88;g.clearRect(0,0,W,H);g.fillStyle='#101a2a';g.fillRect(0,0,W,H);g.fillStyle='#1c2d45';g.fillRect(cx-205,10,410,H-20);g.strokeStyle='#3e536e';g.strokeRect(cx-205,10,410,H-20);g.textAlign='center';g.font='bold 17px system-ui';g.fillStyle='#cbd9ed';g.fillText('左手 F',cx-off,38);g.fillText('右手 J',cx+off,38);g.setLineDash([5,7]);g.strokeStyle='#45617e';for(const x of [cx-off,cx+off]){g.beginPath();g.moveTo(x,60);g.lineTo(x,yHit-105);g.stroke();}g.setLineDash([]);
- g.save();g.translate(cx,yHit);g.shadowColor='#0009';g.shadowBlur=14;g.shadowOffsetY=5;g.fillStyle='#70452b';g.beginPath();g.arc(0,0,143,0,7);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.strokeStyle='#c48a4e';g.lineWidth=8;g.beginPath();g.arc(0,0,138,0,7);g.stroke();g.fillStyle='#e5c89c';g.beginPath();g.arc(0,0,128,0,7);g.fill();g.strokeStyle='#fff0d4';g.lineWidth=3;g.beginPath();g.arc(0,0,123,0,7);g.stroke();g.restore();g.strokeStyle='#f6d06e';g.lineWidth=3;g.beginPath();g.moveTo(cx-125,yHit);g.lineTo(cx+125,yHit);g.stroke();
+function draw(){if(!mobileGameDevice()){drawDesktop();return;}drawMobile();}
+function drawDesktop(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.height,yHit=H-122,cx=W/2,off=62;g.clearRect(0,0,W,H);g.fillStyle='#101a2a';g.fillRect(0,0,W,H);g.fillStyle='#1c2d45';g.fillRect(cx-150,10,300,H-20);g.strokeStyle='#3e536e';g.strokeRect(cx-150,10,300,H-20);g.textAlign='center';g.font='bold 17px system-ui';g.fillStyle='#cbd9ed';g.fillText('左手 F',cx-off,38);g.fillText('右手 J',cx+off,38);g.setLineDash([5,7]);g.strokeStyle='#45617e';for(const x of [cx-off,cx+off]){g.beginPath();g.moveTo(x,60);g.lineTo(x,yHit-76);g.stroke();}g.setLineDash([]);
+ g.save();g.translate(cx,yHit);g.shadowColor='#0009';g.shadowBlur=14;g.shadowOffsetY=5;g.fillStyle='#70452b';g.beginPath();g.arc(0,0,112,0,7);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.strokeStyle='#c48a4e';g.lineWidth=8;g.beginPath();g.arc(0,0,108,0,7);g.stroke();g.fillStyle='#e5c89c';g.beginPath();g.arc(0,0,100,0,7);g.fill();g.strokeStyle='#fff0d4';g.lineWidth=3;g.beginPath();g.arc(0,0,96,0,7);g.stroke();g.restore();g.strokeStyle='#f6d06e';g.lineWidth=3;g.beginPath();g.moveTo(cx-96,yHit);g.lineTo(cx+96,yHit);g.stroke();
+ for(const x of [cx-off,cx+off]){g.strokeStyle='#fff4d0';g.lineWidth=3;g.beginPath();g.arc(x,yHit,30,0,7);g.stroke();g.fillStyle='#fff4d0';g.beginPath();g.arc(x,yHit,3,0,7);g.fill();}
+ const t=current(),lead=+$('lead').value;for(let i=0;i<notes.length;i++){const n=notes[i];if(n.t<begin||n.t>=end)continue;const dt=(n.t-t)*sec();if(dt>lead||dt<-.25)continue;const x=cx+(n.hand==='L'?-off:off),y=yHit-dt/lead*(yHit-72),r=n.kind==='tsu'?18:27;g.globalAlpha=hit.has(i)?.22:dt<-.17?.35:1;g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=n.kind==='dan'?'#f17a78':n.kind==='tsu'?'#6ebaf0':'#f3c36b';g.fill();g.strokeStyle='#fffa';g.lineWidth=2;g.stroke();g.fillStyle='#172337';g.font='bold '+(n.kind==='tsu'?15:19)+'px system-ui';g.textBaseline='middle';g.fillText(n.kind==='dan'?'ダ':n.kind==='tsu'?'ツ':'カ',x,y+1);g.textBaseline='alphabetic';g.globalAlpha=1;}
+ flashes=flashes.filter(f=>performance.now()-f.at<550);for(const f of flashes){g.font='bold 18px system-ui';g.fillStyle=f.text==='GOOD'?'#ffe49b':'#ff9696';g.fillText(f.text,cx+(f.hand==='L'?-off:off),yHit-116);}}
+function drawMobile(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.height,yHit=H-205,cx=W/2,off=145;g.clearRect(0,0,W,H);g.fillStyle='#101a2a';g.fillRect(0,0,W,H);g.fillStyle='#1c2d45';g.fillRect(cx-255,10,510,H-20);g.strokeStyle='#3e536e';g.strokeRect(cx-255,10,510,H-20);g.textAlign='center';g.font='bold 17px system-ui';g.fillStyle='#cbd9ed';g.fillText('左手 F',cx-off,38);g.fillText('右手 J',cx+off,38);g.setLineDash([5,7]);g.strokeStyle='#45617e';for(const x of [cx-off,cx+off]){g.beginPath();g.moveTo(x,60);g.lineTo(x,yHit-105);g.stroke();}g.setLineDash([]);
+ g.save();g.translate(cx,yHit);g.shadowColor='#0009';g.shadowBlur=14;g.shadowOffsetY=5;g.fillStyle='#70452b';g.beginPath();g.arc(0,0,195,0,7);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.strokeStyle='#c48a4e';g.lineWidth=8;g.beginPath();g.arc(0,0,189,0,7);g.stroke();g.fillStyle='#e5c89c';g.beginPath();g.arc(0,0,180,0,7);g.fill();g.strokeStyle='#fff0d4';g.lineWidth=3;g.beginPath();g.arc(0,0,174,0,7);g.stroke();g.restore();g.strokeStyle='#f6d06e';g.lineWidth=3;g.beginPath();g.moveTo(cx-175,yHit);g.lineTo(cx+175,yHit);g.stroke();
  for(const x of [cx-off,cx+off]){g.strokeStyle='#fff4d0';g.lineWidth=3;g.beginPath();g.arc(x,yHit,43,0,7);g.stroke();g.fillStyle='#fff4d0';g.beginPath();g.arc(x,yHit,5,0,7);g.fill();}
  const t=current(),lead=+$('lead').value;for(let i=0;i<notes.length;i++){const n=notes[i];if(n.t<begin||n.t>=end)continue;const dt=(n.t-t)*sec();if(dt>lead||dt<-.25)continue;const x=cx+(n.hand==='L'?-off:off),y=yHit-dt/lead*(yHit-72),r=n.kind==='tsu'?29:40;g.globalAlpha=hit.has(i)?.22:dt<-.17?.35:1;g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=n.kind==='dan'?'#f17a78':n.kind==='tsu'?'#6ebaf0':'#f3c36b';g.fill();g.strokeStyle='#fffa';g.lineWidth=2;g.stroke();g.fillStyle='#172337';g.font='bold '+(n.kind==='tsu'?22:27)+'px system-ui';g.textBaseline='middle';g.fillText(n.kind==='dan'?'ダ':n.kind==='tsu'?'ツ':'カ',x,y+1);g.textBaseline='alphabetic';g.globalAlpha=1;}
  flashes=flashes.filter(f=>performance.now()-f.at<550);for(const f of flashes){g.font='bold 24px system-ui';g.fillStyle=f.text==='GOOD'?'#ffe49b':'#ff9696';g.fillText(f.text,cx+(f.hand==='L'?-off:off),yHit-153);}}
@@ -281,8 +287,8 @@ function snapshot(){return JSON.parse(JSON.stringify(SOURCE));}
 $('saveJson').onclick=()=>downloadText('文殊_長胴_譜面バックアップ.json',JSON.stringify(snapshot(),null,2),'application/json');
 $('loadJson').onclick=()=>$('jsonFile').click();
 $('jsonFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const src=(data.A&&data.C&&data.G)?data:(data.section&&data.bars?{...SOURCE,[data.section]:data}:null);if(!src)throw Error('A・C・G一括データ、またはセクション単体JSONを選んでください');for(const key of ['A','C','G']){const d=src[key];if(!d||!Array.isArray(d.bars)||d.bars.length<1||!['taiko-grid-v1','taiko-grid-v2'].includes(d.format))throw Error(key+'の形式が不正です');if(d.format==='taiko-grid-v2'&&!d.bars.every(b=>Array.isArray(b.beats)&&b.beats.length===4&&b.beats.every(x=>[3,4,6,8].includes(x.mode)&&x.notes&&typeof x.notes==='object')&&(b.cut===null||[1,2,3].includes(b.cut))))throw Error(key+'の拍データが不正です');}SOURCE=src;switchSection(section);$('editInfo').textContent='JSONを読み込みました';}catch(err){alert('読み込み失敗：'+err.message);}e.target.value='';};
-$('exportHtml').onclick=()=>{let html='<!doctype html>\n'+document.documentElement.outerHTML;const replacement='let SOURCE='+JSON.stringify(snapshot())+';\nconst DISTRIBUTION=true;';html=html.replace(/let SOURCE=[\s\S]*?;\s*const DISTRIBUTION=false;/,()=>replacement);if(!html.includes('const DISTRIBUTION=true;')){alert('書き出しに失敗しました');return;}downloadText('文殊_長胴_団員練習用_v2.6_A_C_G.html',html,'text/html;charset=utf-8');$('editInfo').textContent='団員用HTMLを書き出しました';};
-if(DISTRIBUTION){document.body.classList.add('distribution');$('edition').textContent='団員練習版 v2.6';$('modeEdit').classList.add('hidden');$('editorPanel').classList.add('hidden');$('gamePanel').classList.remove('hidden');$('scorePanel').classList.add('hidden');$('modeGame').classList.add('active');$('modeScore').classList.remove('active');mode='game';}
+$('exportHtml').onclick=()=>{let html='<!doctype html>\n'+document.documentElement.outerHTML;const replacement='let SOURCE='+JSON.stringify(snapshot())+';\nconst DISTRIBUTION=true;';html=html.replace(/let SOURCE=[\s\S]*?;\s*const DISTRIBUTION=false;/,()=>replacement);if(!html.includes('const DISTRIBUTION=true;')){alert('書き出しに失敗しました');return;}downloadText('文殊_長胴_団員練習用_v2.8_A_C_G.html',html,'text/html;charset=utf-8');$('editInfo').textContent='団員用HTMLを書き出しました';};
+if(DISTRIBUTION){document.body.classList.add('distribution');$('edition').textContent='団員練習版 v2.8';$('modeEdit').classList.add('hidden');$('editorPanel').classList.add('hidden');$('gamePanel').classList.remove('hidden');$('scorePanel').classList.add('hidden');$('modeGame').classList.add('active');$('modeScore').classList.remove('active');mode='game';}
 
 // v1.6: Keep display-mode selection in header; place game controls beside the stage.
 const controlHome=document.querySelector('.controls');
@@ -299,7 +305,7 @@ function arrangeControls(targetMode){
   controlHome.append(playbackGroup,...optionGroups);
  }
 }
-function resizeGameCanvas(){const c=$('game');const tall=window.matchMedia('(max-width:700px) and (orientation:portrait)').matches;c.width=700;c.height=tall?900:480;fitGameCanvas();}
+function resizeGameCanvas(){const c=$('game');const tall=mobileGameDevice()&&window.matchMedia('(max-width:700px) and (orientation:portrait)').matches;c.width=700;c.height=tall?900:480;fitGameCanvas();}
 function fitGameCanvas(){const c=$('game');if(!document.body.classList.contains('gameImmersive')){c.style.removeProperty('width');c.style.removeProperty('height');return;}const stage=c.closest('.gameStage');if(!stage)return;const r=stage.getBoundingClientRect(),cs=getComputedStyle(stage);const availW=Math.max(1,r.width-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-2),availH=Math.max(1,r.height-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-2);const scale=Math.min(availW/c.width,availH/c.height);c.style.setProperty('width',Math.floor(c.width*scale)+'px','important');c.style.setProperty('height',Math.floor(c.height*scale)+'px','important');}
 const gameStageObserver=new ResizeObserver(()=>fitGameCanvas());gameStageObserver.observe(document.querySelector('.gameStage'));
 window.addEventListener('resize',resizeGameCanvas);resizeGameCanvas();arrangeControls('game');
@@ -330,7 +336,8 @@ function exitGameFullscreen(){
 $('exitGameFull').onclick=exitGameFullscreen;
 // Prevent touch swipes on the playing surface from scrolling the page.
 $('gamePanel').addEventListener('touchmove',e=>{if(gameFullscreen&&e.cancelable)e.preventDefault();},{passive:false});
-$('play').onclick=()=>{enterGameFullscreen();start();};$('pause').onclick=pause;$('stop').onclick=()=>{stop();exitGameFullscreen();};$('modeGame').onclick=()=>switchMode('game');$('modeScore').onclick=()=>switchMode('score');$('modeEdit').onclick=()=>switchMode('edit');document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));// v2.6: tap the actual drum heads on the canvas, with multi-touch support.
+$('play').onclick=()=>{enterGameFullscreen();start();};$('pause').onclick=pause;$('stop').onclick=()=>{stop();exitGameFullscreen();};$('modeGame').onclick=()=>switchMode('game');$('modeScore').onclick=()=>switchMode('score');$('modeEdit').onclick=()=>switchMode('edit');document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));// v2.8: desktop classic layout, mobile wide thumb-friendly tap layout.
+// v2.8: tap the actual drum heads on the canvas, with multi-touch support.
 // Canvas coordinates are calculated from its displayed rectangle, so portrait scaling
 // never changes the tap position. Only the lower drum region is interactive.
 $('game').addEventListener('pointerdown',e=>{
@@ -339,8 +346,8 @@ $('game').addEventListener('pointerdown',e=>{
  const canvas=$('game'),r=canvas.getBoundingClientRect();
  const x=(e.clientX-r.left)*canvas.width/r.width;
  const y=(e.clientY-r.top)*canvas.height/r.height;
- const hitY=canvas.height-158,centerX=canvas.width/2;
- if(y<hitY-115||y>hitY+110||x<centerX-205||x>centerX+205)return;
+ const hitY=canvas.height-205,centerX=canvas.width/2;
+ if(y<hitY-115||y>hitY+135||x<centerX-255||x>centerX+255)return;
  strike(x<centerX?'L':'R');
 },{passive:false});
 document.addEventListener('keydown',e=>{
