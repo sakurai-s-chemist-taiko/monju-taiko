@@ -89,7 +89,7 @@ body{max-width:1280px}body>p{display:none}
 .beatPair .beat:first-of-type{border-right:1px solid #50657d}
 @media(max-width:650px){.pairedGrid{gap:4px}.beatPair{padding:3px;gap:2px}.pairTitle{font-size:10px}.beatPair .beat{padding:2px}.beatPair .slot{font-size:9px}}
 
-/* v2.2: scroll-free immersive mobile game */
+/* v2.3: scroll-free immersive game, aspect ratio preserved */
 #exitGameFull{display:none}
 @media (pointer:coarse), (max-width:900px){
  body.gameImmersive{overflow:hidden!important;overscroll-behavior:none;touch-action:none}
@@ -102,8 +102,8 @@ body{max-width:1280px}body>p{display:none}
  body.gameImmersive #playDock .groupPlayback .bpmLabel,body.gameImmersive #playDock .groupPlayback .bpmControl>input[type=range],body.gameImmersive #playDock .groupPlayback label{display:none!important}
  body.gameImmersive #playDock .groupPlayback .bpmAdjust button{flex-basis:24px;padding:3px 0;font-size:15px}
  body.gameImmersive #playDock .groupPlayback .bpmAdjust input{font-size:18px;width:42px;padding:2px 0}
- body.gameImmersive .gameStage{flex:1 1 0;min-height:0;display:flex;align-items:stretch;justify-content:center;padding:1px;overflow:hidden}
- body.gameImmersive .gameStage .game{height:100%!important;width:100%!important;max-height:none!important;object-fit:fill!important;touch-action:none}
+ body.gameImmersive .gameStage{flex:1 1 0;min-height:0;display:flex;align-items:center;justify-content:center;padding:2px;overflow:hidden}
+ body.gameImmersive .gameStage .game{height:auto!important;width:auto!important;max-width:100%!important;max-height:100%!important;object-fit:contain!important;touch-action:none;flex:none;aspect-ratio:700 / 900}
  body.gameImmersive .hitPanel{flex:0 0 auto;margin:0!important;padding:2px!important}
  body.gameImmersive .gameHitArea{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:0}
  body.gameImmersive .gameHitArea .strike{min-height:clamp(64px,14dvh,115px);font-size:clamp(17px,4vw,23px);touch-action:none;user-select:none;-webkit-user-select:none}
@@ -272,8 +272,8 @@ function snapshot(){return JSON.parse(JSON.stringify(SOURCE));}
 $('saveJson').onclick=()=>downloadText('文殊_長胴_譜面バックアップ.json',JSON.stringify(snapshot(),null,2),'application/json');
 $('loadJson').onclick=()=>$('jsonFile').click();
 $('jsonFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const src=(data.A&&data.C&&data.G)?data:(data.section&&data.bars?{...SOURCE,[data.section]:data}:null);if(!src)throw Error('A・C・G一括データ、またはセクション単体JSONを選んでください');for(const key of ['A','C','G']){const d=src[key];if(!d||!Array.isArray(d.bars)||d.bars.length<1||!['taiko-grid-v1','taiko-grid-v2'].includes(d.format))throw Error(key+'の形式が不正です');if(d.format==='taiko-grid-v2'&&!d.bars.every(b=>Array.isArray(b.beats)&&b.beats.length===4&&b.beats.every(x=>[3,4,6,8].includes(x.mode)&&x.notes&&typeof x.notes==='object')&&(b.cut===null||[1,2,3].includes(b.cut))))throw Error(key+'の拍データが不正です');}SOURCE=src;switchSection(section);$('editInfo').textContent='JSONを読み込みました';}catch(err){alert('読み込み失敗：'+err.message);}e.target.value='';};
-$('exportHtml').onclick=()=>{let html='<!doctype html>\n'+document.documentElement.outerHTML;const replacement='let SOURCE='+JSON.stringify(snapshot())+';\nconst DISTRIBUTION=true;';html=html.replace(/let SOURCE=[\s\S]*?;\s*const DISTRIBUTION=false;/,()=>replacement);if(!html.includes('const DISTRIBUTION=true;')){alert('書き出しに失敗しました');return;}downloadText('文殊_長胴_団員練習用_v2.2_A_C_G.html',html,'text/html;charset=utf-8');$('editInfo').textContent='団員用HTMLを書き出しました';};
-if(DISTRIBUTION){document.body.classList.add('distribution');$('edition').textContent='団員練習版 v2.2';$('modeEdit').classList.add('hidden');$('editorPanel').classList.add('hidden');$('gamePanel').classList.remove('hidden');$('scorePanel').classList.add('hidden');$('modeGame').classList.add('active');$('modeScore').classList.remove('active');mode='game';}
+$('exportHtml').onclick=()=>{let html='<!doctype html>\n'+document.documentElement.outerHTML;const replacement='let SOURCE='+JSON.stringify(snapshot())+';\nconst DISTRIBUTION=true;';html=html.replace(/let SOURCE=[\s\S]*?;\s*const DISTRIBUTION=false;/,()=>replacement);if(!html.includes('const DISTRIBUTION=true;')){alert('書き出しに失敗しました');return;}downloadText('文殊_長胴_団員練習用_v2.3_A_C_G.html',html,'text/html;charset=utf-8');$('editInfo').textContent='団員用HTMLを書き出しました';};
+if(DISTRIBUTION){document.body.classList.add('distribution');$('edition').textContent='団員練習版 v2.3';$('modeEdit').classList.add('hidden');$('editorPanel').classList.add('hidden');$('gamePanel').classList.remove('hidden');$('scorePanel').classList.add('hidden');$('modeGame').classList.add('active');$('modeScore').classList.remove('active');mode='game';}
 
 // v1.6: Keep display-mode selection in header; place game controls beside the stage.
 const controlHome=document.querySelector('.controls');
@@ -290,15 +290,17 @@ function arrangeControls(targetMode){
   controlHome.append(playbackGroup,...optionGroups);
  }
 }
-function resizeGameCanvas(){const c=$('game');const tall=window.matchMedia('(max-width:700px) and (orientation:portrait)').matches;c.width=700;c.height=tall?760:480;}
+function resizeGameCanvas(){const c=$('game');const tall=window.matchMedia('(max-width:700px) and (orientation:portrait)').matches;c.width=700;c.height=tall?900:480;fitGameCanvas();}
+function fitGameCanvas(){const c=$('game');if(!document.body.classList.contains('gameImmersive')){c.style.removeProperty('width');c.style.removeProperty('height');return;}const stage=c.closest('.gameStage');if(!stage)return;const r=stage.getBoundingClientRect(),cs=getComputedStyle(stage);const availW=Math.max(1,r.width-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-2),availH=Math.max(1,r.height-parseFloat(cs.paddingTop)-parseFloat(cs.paddingBottom)-2);const scale=Math.min(availW/c.width,availH/c.height);c.style.setProperty('width',Math.floor(c.width*scale)+'px','important');c.style.setProperty('height',Math.floor(c.height*scale)+'px','important');}
+const gameStageObserver=new ResizeObserver(()=>fitGameCanvas());gameStageObserver.observe(document.querySelector('.gameStage'));
 window.addEventListener('resize',resizeGameCanvas);resizeGameCanvas();arrangeControls('game');
 
-// v2.2: enter immersive mode on user tap, with CSS fallback for iOS Safari.
+// v2.3: enter immersive mode on user tap, with CSS fallback for iOS Safari.
 let gameFullscreen=false;
 function mobileGameDevice(){return window.matchMedia('(pointer:coarse), (max-width:900px)').matches;}
 function enterGameFullscreen(){
  if(mode!=='game'||!mobileGameDevice()||gameFullscreen)return;
- gameFullscreen=true;document.body.classList.add('gameImmersive');
+ gameFullscreen=true;document.body.classList.add('gameImmersive');resizeGameCanvas();requestAnimationFrame(fitGameCanvas);
  // requestFullscreen is not available for arbitrary elements in some iPhone browsers.
  // CSS fixed-position immersive mode works without this API.
  const panel=$('gamePanel');
@@ -306,7 +308,7 @@ function enterGameFullscreen(){
 }
 function exitGameFullscreen(){
  if(!gameFullscreen)return;
- gameFullscreen=false;document.body.classList.remove('gameImmersive');
+ gameFullscreen=false;document.body.classList.remove('gameImmersive');resizeGameCanvas();
  if(document.fullscreenElement){try{const r=document.exitFullscreen();if(r&&r.catch)r.catch(()=>{});}catch(e){}}
 }
 $('exitGameFull').onclick=exitGameFullscreen;
