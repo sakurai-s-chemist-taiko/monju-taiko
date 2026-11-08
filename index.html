@@ -111,7 +111,7 @@ body{max-width:1280px}body>p{display:none}
  body.gameImmersive #exitGameFull{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;padding:8px 9px;background:#30435b;color:white;border:1px solid #7890ac;border-radius:8px;font-size:12px;touch-action:manipulation}
 }
 
-/* v3.0: the on-screen drum itself is the touch surface; no redundant strike pads. */
+/* v3.1: the on-screen drum itself is the touch surface; no redundant strike pads. */
 #game{touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}
 .gameHitArea{display:flex!important;justify-content:center;align-items:center}
 .gameHitArea #score{grid-column:auto!important;text-align:center}
@@ -248,8 +248,8 @@ function drawDesktop(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.heig
  flashes=flashes.filter(f=>performance.now()-f.at<550);for(const f of flashes){g.font='bold 18px system-ui';g.fillStyle=f.text==='GOOD'?'#ffe49b':'#ff9696';g.fillText(f.text,cx+(f.hand==='L'?-off:off),yHit-116);}}
 function drawMobile(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.height,yHit=H-205,cx=W/2,off=145;g.clearRect(0,0,W,H);g.fillStyle='#101a2a';g.fillRect(0,0,W,H);g.fillStyle='#1c2d45';g.fillRect(cx-255,10,510,H-20);g.strokeStyle='#3e536e';g.strokeRect(cx-255,10,510,H-20);g.textAlign='center';g.font='bold 17px system-ui';g.fillStyle='#cbd9ed';g.fillText('左手 F',cx-off,38);g.fillText('右手 J',cx+off,38);g.setLineDash([5,7]);g.strokeStyle='#45617e';for(const x of [cx-off,cx+off]){g.beginPath();g.moveTo(x,60);g.lineTo(x,yHit-105);g.stroke();}g.setLineDash([]);
  g.save();g.translate(cx,yHit);g.shadowColor='#0009';g.shadowBlur=14;g.shadowOffsetY=5;g.fillStyle='#70452b';g.beginPath();g.arc(0,0,195,0,7);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.strokeStyle='#c48a4e';g.lineWidth=8;g.beginPath();g.arc(0,0,189,0,7);g.stroke();g.fillStyle='#e5c89c';g.beginPath();g.arc(0,0,180,0,7);g.fill();g.strokeStyle='#fff0d4';g.lineWidth=3;g.beginPath();g.arc(0,0,174,0,7);g.stroke();g.restore();g.strokeStyle='#f6d06e';g.lineWidth=3;g.beginPath();g.moveTo(cx-175,yHit);g.lineTo(cx+175,yHit);g.stroke();
- for(const x of [cx-off,cx+off]){g.fillStyle='rgba(255,240,205,.16)';g.beginPath();g.arc(x,yHit,86,0,7);g.fill();g.strokeStyle='#fff4d0';g.lineWidth=5;g.stroke();g.fillStyle='#fff4d0';g.beginPath();g.arc(x,yHit,6,0,7);g.fill();}
- const t=current(),lead=+$('lead').value;for(let i=0;i<notes.length;i++){const n=notes[i];if(n.t<begin||n.t>=end)continue;const dt=(n.t-t)*sec();if(dt>lead||dt<-.25)continue;const x=cx+(n.hand==='L'?-off:off),y=yHit-dt/lead*(yHit-72),r=n.kind==='tsu'?44:60;g.globalAlpha=hit.has(i)?.22:dt<-.17?.35:1;g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=n.kind==='dan'?'#f17a78':n.kind==='tsu'?'#6ebaf0':'#f3c36b';g.fill();g.strokeStyle='#fffa';g.lineWidth=3;g.stroke();g.fillStyle='#172337';g.font='bold '+(n.kind==='tsu'?30:37)+'px system-ui';g.textBaseline='middle';g.fillText(n.kind==='dan'?'ダ':n.kind==='tsu'?'ツ':'カ',x,y+1);g.textBaseline='alphabetic';g.globalAlpha=1;}
+ for(const x of [cx-off,cx+off]){g.fillStyle='rgba(255,240,205,.09)';g.beginPath();g.arc(x,yHit,140,0,7);g.fill();g.strokeStyle='rgba(255,244,208,.6)';g.lineWidth=4;g.stroke();g.fillStyle='rgba(255,240,205,.18)';g.beginPath();g.arc(x,yHit,60,0,7);g.fill();g.strokeStyle='#fff4d0';g.lineWidth=4;g.stroke();g.fillStyle='#fff4d0';g.beginPath();g.arc(x,yHit,6,0,7);g.fill();}
+ const t=current(),lead=+$('lead').value;for(let i=0;i<notes.length;i++){const n=notes[i];if(n.t<begin||n.t>=end)continue;const dt=(n.t-t)*sec();if(dt>lead||dt<-.25)continue;const x=cx+(n.hand==='L'?-off:off),y=yHit-dt/lead*(yHit-72),r=n.kind==='tsu'?29:40;g.globalAlpha=hit.has(i)?.22:dt<-.17?.35:1;g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=n.kind==='dan'?'#f17a78':n.kind==='tsu'?'#6ebaf0':'#f3c36b';g.fill();g.strokeStyle='#fffa';g.lineWidth=3;g.stroke();g.fillStyle='#172337';g.font='bold '+(n.kind==='tsu'?21:27)+'px system-ui';g.textBaseline='middle';g.fillText(n.kind==='dan'?'ダ':n.kind==='tsu'?'ツ':'カ',x,y+1);g.textBaseline='alphabetic';g.globalAlpha=1;}
  flashes=flashes.filter(f=>performance.now()-f.at<550);for(const f of flashes){g.font='bold 24px system-ui';g.fillStyle=f.text==='GOOD'?'#ffe49b':'#ff9696';g.fillText(f.text,cx+(f.hand==='L'?-off:off),yHit-153);}}
 function compactPairHands(root){
  root.querySelectorAll('.beatPair').forEach(pair=>{
@@ -336,8 +336,8 @@ function exitGameFullscreen(){
 $('exitGameFull').onclick=exitGameFullscreen;
 // Prevent touch swipes on the playing surface from scrolling the page.
 $('gamePanel').addEventListener('touchmove',e=>{if(gameFullscreen&&e.cancelable)e.preventDefault();},{passive:false});
-$('play').onclick=()=>{enterGameFullscreen();start();};$('pause').onclick=pause;$('stop').onclick=()=>{stop();exitGameFullscreen();};$('modeGame').onclick=()=>switchMode('game');$('modeScore').onclick=()=>switchMode('score');$('modeEdit').onclick=()=>switchMode('edit');document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));// v3.0: desktop classic layout, mobile wide thumb-friendly tap layout.
-// v3.0: tap the actual drum heads on the canvas, with multi-touch support.
+$('play').onclick=()=>{enterGameFullscreen();start();};$('pause').onclick=pause;$('stop').onclick=()=>{stop();exitGameFullscreen();};$('modeGame').onclick=()=>switchMode('game');$('modeScore').onclick=()=>switchMode('score');$('modeEdit').onclick=()=>switchMode('edit');document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));// v3.1: desktop classic layout, mobile wide thumb-friendly tap layout.
+// v3.1: tap the actual drum heads on the canvas, with multi-touch support.
 // Canvas coordinates are calculated from its displayed rectangle, so portrait scaling
 // never changes the tap position. Only the lower drum region is interactive.
 $('game').addEventListener('pointerdown',e=>{
@@ -351,9 +351,9 @@ $('game').addEventListener('pointerdown',e=>{
  const offset=mobile?145:62;
  const hand=x<centerX?'L':'R';
  const targetX=centerX+(hand==='L'?-offset:offset);
- // Mobile: visible circle diameter 172, comfortable thumb touch diameter 216.
+ // Mobile: inner aim circle diameter 120, outer thumb guide 280, touch diameter 310.
  // Desktop: retain the original compact target and keyboard workflow.
- const radius=mobile?108:42;
+ const radius=mobile?155:42;
  if(Math.hypot(x-targetX,y-hitY)>radius)return;
  strike(hand);
 },{passive:false});
