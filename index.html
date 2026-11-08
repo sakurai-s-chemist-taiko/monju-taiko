@@ -110,6 +110,15 @@ body{max-width:1280px}body>p{display:none}
  body.gameImmersive .gameHitArea #score{grid-column:1/-1;font-size:11px;padding:2px}
  body.gameImmersive #exitGameFull{display:inline-flex;flex:0 0 auto;align-items:center;justify-content:center;padding:8px 9px;background:#30435b;color:white;border:1px solid #7890ac;border-radius:8px;font-size:12px;touch-action:manipulation}
 }
+
+/* v2.6: the on-screen drum itself is the touch surface; no redundant strike pads. */
+#game{touch-action:none;cursor:pointer;-webkit-user-select:none;user-select:none}
+.gameHitArea{display:flex!important;justify-content:center;align-items:center}
+.gameHitArea #score{grid-column:auto!important;text-align:center}
+body.gameImmersive .hitPanel{padding:2px 5px!important}
+body.gameImmersive .gameHitArea{display:flex!important;justify-content:center}
+body.gameImmersive .gameHitArea #score{font-size:12px;padding:4px 10px}
+body.gameImmersive .gameStage{flex:1 1 0;min-height:0}
 </style><style>
 /* v1.8: continuously moving subdivision cursor, including silent subdivisions */
 .beat.playBeat{background:#294867;box-shadow:inset 0 0 0 2px #63b9ff}
@@ -137,7 +146,7 @@ body{max-width:1280px}body>p{display:none}
 </head><body>
 <h1>🥁 文殊｜長胴太鼓 <small id="edition" style="font-size:12px;color:#b3c5dc">団員練習版 v2.1</small></h1><p style="margin:5px 0">A・C・G 切り替え対応｜音源なし統合練習アプリ。譜面を見て覚える／叩いて覚える、どちらも使えます。</p>
 <div class="panel controls"><div class="row controlGroup groupSections"><strong class="groupLabel">セクション</strong><button data-section="A" class="active">A｜16小節</button><button data-section="C">C｜18小節</button><button data-section="G">G｜22小節</button></div><div class="row controlGroup groupModes"><strong class="groupLabel">表示モード</strong><button id="modeGame" class="active">🥁 太鼓ゲーム</button><button id="modeScore">📖 譜面追従</button><button id="modeEdit" class="editorOnly">✏️ 譜面編集（PC）</button><span id="position" class="pill">1 / 16 小節</span><span id="status" class="muted">準備OK</span></div><div class="row controlGroup groupPlayback"><strong class="groupLabel">再生操作</strong><button id="play">▶ 再生</button><button id="pause">Ⅱ 一時停止</button><button id="stop">■ 停止</button><div class="bpmControl"><span class="bpmLabel">BPM</span><div class="bpmAdjust"><button type="button" id="bpmMinus" aria-label="BPMを1下げる">−</button><input type="number" id="bpmNumber" min="35" max="160" step="1" value="70" inputmode="numeric" aria-label="BPM数値入力"><button type="button" id="bpmPlus" aria-label="BPMを1上げる">＋</button></div><input type="range" id="bpm" min="35" max="160" value="70" aria-label="BPMスライダー"><strong id="bpmText" hidden>70</strong></div><label>音量 <input id="volume" type="range" min="0" max="100" value="85"></label></div><div class="row controlGroup groupOptions"><label>開始小節 <input id="from" type="number" min="1" value="1"></label><label>終了小節 <input id="to" type="number" min="1" value="16"></label><label><input id="loop" type="checkbox">範囲をループ</label><label><input id="count" type="checkbox" checked>4拍カウント</label></div><div class="row controlGroup groupOptions"><label><input id="guide" type="checkbox" checked>ガイド音</label><label><input id="metronome" type="checkbox">メトロノーム</label><label>ゲームの先読み <select id="lead"><option value="1.5">1.5秒</option><option value="2.5" selected>2.5秒</option><option value="4">4秒</option></select></label></div></div>
-<div id="gamePanel"><div class="gameDock" id="gameDock"><div id="sectionDock"></div><div id="playDock"></div><button id="exitGameFull" type="button">⤢ 戻る</button><details class="gameSettings" id="gameSettings"><summary>⚙ 詳細設定（練習範囲・ガイド・カウント）</summary><div id="optionDock"></div></details></div><div class="gameStage"><canvas class="game" id="game" width="700" height="480"></canvas></div><div class="panel hitPanel"><div class="gameHitArea"><button class="strike" id="strikeL">左手（F）</button><button class="strike" id="strikeR">右手（J）</button><span class="pill" id="score">GOOD 0 / 0</span></div><div class="gameHelp">ノーツが太鼓の打点○に重なるタイミングで叩きます。F＝左手、J＝右手、Space＝再生／一時停止。音色は太鼓の膜振動を模した電子合成です。</div></div></div>
+<div id="gamePanel"><div class="gameDock" id="gameDock"><div id="sectionDock"></div><div id="playDock"></div><button id="exitGameFull" type="button">⤢ 戻る</button><details class="gameSettings" id="gameSettings"><summary>⚙ 詳細設定（練習範囲・ガイド・カウント）</summary><div id="optionDock"></div></details></div><div class="gameStage"><canvas class="game" id="game" width="700" height="480"></canvas></div><div class="panel hitPanel"><div class="gameHitArea"><span class="pill" id="score">GOOD 0 / 0</span></div><div class="gameHelp">ノーツが太鼓の打点○に重なるタイミングで、画面の太鼓を直接タップ。PCではF＝左手、J＝右手、Space＝再生／一時停止。音色は太鼓の膜振動を模した電子合成です。</div></div></div>
 <div id="scorePanel" class="hidden"><div class="panel"><div class="sectionTitle"><strong>全小節の譜面（右手・左手2段）</strong><span class="muted">1・2拍目／3・4拍目をひとまとまりで表示。拍の位置を青いカーソルで常時表示（休符も進行）・打点は黄色。小節をクリックすると練習範囲の開始位置を指定。</span></div><div class="row"><span class="legend"><i class="dot" style="background:#ef8380"></i>ダ</span><span class="legend"><i class="dot" style="background:#79c2ef"></i>ツ</span><span class="legend"><i class="dot" style="background:#f4c56c"></i>カ</span><span class="muted">6分割・8分割も元データどおり表示</span></div><div id="scoreView" class="scoreView"></div></div></div>
 <div id="editorPanel" class="panel hidden"><div class="sectionTitle"><strong>✏️ PC専用・譜面編集</strong><span class="muted">編集内容は練習画面に即時反映。配布用HTMLに編集機能は含まれません。</span></div>
 <div class="row"><label>入力する音 <select id="editKind"><option value="dan">ダ</option><option value="tsu">ツ</option><option value="ka">カ</option><option value="">消去（休符）</option></select></label><label>拍の分割 <select id="editDivision"><option value="4">4分割</option><option value="3">3分割</option><option value="6">6分割</option><option value="8">8分割</option></select></label><label>小節の終了拍 <select id="editCut"><option value="4">4拍（通常）</option><option value="1">1拍で終了</option><option value="2">2拍で終了</option><option value="3">3拍で終了</option></select></label></div>
@@ -231,11 +240,11 @@ function strike(hand){
  else flashes.push({hand,text:'MISS',at:performance.now()});
  updateScore();
 }
-function draw(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.height,yHit=H-122,cx=W/2,off=62;g.clearRect(0,0,W,H);g.fillStyle='#101a2a';g.fillRect(0,0,W,H);g.fillStyle='#1c2d45';g.fillRect(cx-150,10,300,H-20);g.strokeStyle='#3e536e';g.strokeRect(cx-150,10,300,H-20);g.textAlign='center';g.font='bold 17px system-ui';g.fillStyle='#cbd9ed';g.fillText('左手 F',cx-off,38);g.fillText('右手 J',cx+off,38);g.setLineDash([5,7]);g.strokeStyle='#45617e';for(const x of [cx-off,cx+off]){g.beginPath();g.moveTo(x,60);g.lineTo(x,yHit-76);g.stroke();}g.setLineDash([]);
- g.save();g.translate(cx,yHit);g.shadowColor='#0009';g.shadowBlur=14;g.shadowOffsetY=5;g.fillStyle='#70452b';g.beginPath();g.arc(0,0,112,0,7);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.strokeStyle='#c48a4e';g.lineWidth=8;g.beginPath();g.arc(0,0,108,0,7);g.stroke();g.fillStyle='#e5c89c';g.beginPath();g.arc(0,0,100,0,7);g.fill();g.strokeStyle='#fff0d4';g.lineWidth=3;g.beginPath();g.arc(0,0,96,0,7);g.stroke();g.restore();g.strokeStyle='#f6d06e';g.lineWidth=3;g.beginPath();g.moveTo(cx-96,yHit);g.lineTo(cx+96,yHit);g.stroke();
- for(const x of [cx-off,cx+off]){g.strokeStyle='#fff4d0';g.lineWidth=3;g.beginPath();g.arc(x,yHit,30,0,7);g.stroke();g.fillStyle='#fff4d0';g.beginPath();g.arc(x,yHit,3,0,7);g.fill();}
- const t=current(),lead=+$('lead').value;for(let i=0;i<notes.length;i++){const n=notes[i];if(n.t<begin||n.t>=end)continue;const dt=(n.t-t)*sec();if(dt>lead||dt<-.25)continue;const x=cx+(n.hand==='L'?-off:off),y=yHit-dt/lead*(yHit-72),r=n.kind==='tsu'?18:27;g.globalAlpha=hit.has(i)?.22:dt<-.17?.35:1;g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=n.kind==='dan'?'#f17a78':n.kind==='tsu'?'#6ebaf0':'#f3c36b';g.fill();g.strokeStyle='#fffa';g.lineWidth=2;g.stroke();g.fillStyle='#172337';g.font='bold '+(n.kind==='tsu'?15:19)+'px system-ui';g.textBaseline='middle';g.fillText(n.kind==='dan'?'ダ':n.kind==='tsu'?'ツ':'カ',x,y+1);g.textBaseline='alphabetic';g.globalAlpha=1;}
- flashes=flashes.filter(f=>performance.now()-f.at<550);for(const f of flashes){g.font='bold 18px system-ui';g.fillStyle=f.text==='GOOD'?'#ffe49b':'#ff9696';g.fillText(f.text,cx+(f.hand==='L'?-off:off),yHit-116);}}
+function draw(){const c=$('game'),g=c.getContext('2d'),W=c.width,H=c.height,yHit=H-158,cx=W/2,off=88;g.clearRect(0,0,W,H);g.fillStyle='#101a2a';g.fillRect(0,0,W,H);g.fillStyle='#1c2d45';g.fillRect(cx-205,10,410,H-20);g.strokeStyle='#3e536e';g.strokeRect(cx-205,10,410,H-20);g.textAlign='center';g.font='bold 17px system-ui';g.fillStyle='#cbd9ed';g.fillText('左手 F',cx-off,38);g.fillText('右手 J',cx+off,38);g.setLineDash([5,7]);g.strokeStyle='#45617e';for(const x of [cx-off,cx+off]){g.beginPath();g.moveTo(x,60);g.lineTo(x,yHit-105);g.stroke();}g.setLineDash([]);
+ g.save();g.translate(cx,yHit);g.shadowColor='#0009';g.shadowBlur=14;g.shadowOffsetY=5;g.fillStyle='#70452b';g.beginPath();g.arc(0,0,143,0,7);g.fill();g.shadowBlur=0;g.shadowOffsetY=0;g.strokeStyle='#c48a4e';g.lineWidth=8;g.beginPath();g.arc(0,0,138,0,7);g.stroke();g.fillStyle='#e5c89c';g.beginPath();g.arc(0,0,128,0,7);g.fill();g.strokeStyle='#fff0d4';g.lineWidth=3;g.beginPath();g.arc(0,0,123,0,7);g.stroke();g.restore();g.strokeStyle='#f6d06e';g.lineWidth=3;g.beginPath();g.moveTo(cx-125,yHit);g.lineTo(cx+125,yHit);g.stroke();
+ for(const x of [cx-off,cx+off]){g.strokeStyle='#fff4d0';g.lineWidth=3;g.beginPath();g.arc(x,yHit,43,0,7);g.stroke();g.fillStyle='#fff4d0';g.beginPath();g.arc(x,yHit,5,0,7);g.fill();}
+ const t=current(),lead=+$('lead').value;for(let i=0;i<notes.length;i++){const n=notes[i];if(n.t<begin||n.t>=end)continue;const dt=(n.t-t)*sec();if(dt>lead||dt<-.25)continue;const x=cx+(n.hand==='L'?-off:off),y=yHit-dt/lead*(yHit-72),r=n.kind==='tsu'?29:40;g.globalAlpha=hit.has(i)?.22:dt<-.17?.35:1;g.beginPath();g.arc(x,y,r,0,7);g.fillStyle=n.kind==='dan'?'#f17a78':n.kind==='tsu'?'#6ebaf0':'#f3c36b';g.fill();g.strokeStyle='#fffa';g.lineWidth=2;g.stroke();g.fillStyle='#172337';g.font='bold '+(n.kind==='tsu'?22:27)+'px system-ui';g.textBaseline='middle';g.fillText(n.kind==='dan'?'ダ':n.kind==='tsu'?'ツ':'カ',x,y+1);g.textBaseline='alphabetic';g.globalAlpha=1;}
+ flashes=flashes.filter(f=>performance.now()-f.at<550);for(const f of flashes){g.font='bold 24px system-ui';g.fillStyle=f.text==='GOOD'?'#ffe49b':'#ff9696';g.fillText(f.text,cx+(f.hand==='L'?-off:off),yHit-153);}}
 function compactPairHands(root){
  root.querySelectorAll('.beatPair').forEach(pair=>{
   if(pair.querySelector('.pairHands'))return;
@@ -272,8 +281,8 @@ function snapshot(){return JSON.parse(JSON.stringify(SOURCE));}
 $('saveJson').onclick=()=>downloadText('文殊_長胴_譜面バックアップ.json',JSON.stringify(snapshot(),null,2),'application/json');
 $('loadJson').onclick=()=>$('jsonFile').click();
 $('jsonFile').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());const src=(data.A&&data.C&&data.G)?data:(data.section&&data.bars?{...SOURCE,[data.section]:data}:null);if(!src)throw Error('A・C・G一括データ、またはセクション単体JSONを選んでください');for(const key of ['A','C','G']){const d=src[key];if(!d||!Array.isArray(d.bars)||d.bars.length<1||!['taiko-grid-v1','taiko-grid-v2'].includes(d.format))throw Error(key+'の形式が不正です');if(d.format==='taiko-grid-v2'&&!d.bars.every(b=>Array.isArray(b.beats)&&b.beats.length===4&&b.beats.every(x=>[3,4,6,8].includes(x.mode)&&x.notes&&typeof x.notes==='object')&&(b.cut===null||[1,2,3].includes(b.cut))))throw Error(key+'の拍データが不正です');}SOURCE=src;switchSection(section);$('editInfo').textContent='JSONを読み込みました';}catch(err){alert('読み込み失敗：'+err.message);}e.target.value='';};
-$('exportHtml').onclick=()=>{let html='<!doctype html>\n'+document.documentElement.outerHTML;const replacement='let SOURCE='+JSON.stringify(snapshot())+';\nconst DISTRIBUTION=true;';html=html.replace(/let SOURCE=[\s\S]*?;\s*const DISTRIBUTION=false;/,()=>replacement);if(!html.includes('const DISTRIBUTION=true;')){alert('書き出しに失敗しました');return;}downloadText('文殊_長胴_団員練習用_v2.3_A_C_G.html',html,'text/html;charset=utf-8');$('editInfo').textContent='団員用HTMLを書き出しました';};
-if(DISTRIBUTION){document.body.classList.add('distribution');$('edition').textContent='団員練習版 v2.3';$('modeEdit').classList.add('hidden');$('editorPanel').classList.add('hidden');$('gamePanel').classList.remove('hidden');$('scorePanel').classList.add('hidden');$('modeGame').classList.add('active');$('modeScore').classList.remove('active');mode='game';}
+$('exportHtml').onclick=()=>{let html='<!doctype html>\n'+document.documentElement.outerHTML;const replacement='let SOURCE='+JSON.stringify(snapshot())+';\nconst DISTRIBUTION=true;';html=html.replace(/let SOURCE=[\s\S]*?;\s*const DISTRIBUTION=false;/,()=>replacement);if(!html.includes('const DISTRIBUTION=true;')){alert('書き出しに失敗しました');return;}downloadText('文殊_長胴_団員練習用_v2.6_A_C_G.html',html,'text/html;charset=utf-8');$('editInfo').textContent='団員用HTMLを書き出しました';};
+if(DISTRIBUTION){document.body.classList.add('distribution');$('edition').textContent='団員練習版 v2.6';$('modeEdit').classList.add('hidden');$('editorPanel').classList.add('hidden');$('gamePanel').classList.remove('hidden');$('scorePanel').classList.add('hidden');$('modeGame').classList.add('active');$('modeScore').classList.remove('active');mode='game';}
 
 // v1.6: Keep display-mode selection in header; place game controls beside the stage.
 const controlHome=document.querySelector('.controls');
@@ -295,9 +304,16 @@ function fitGameCanvas(){const c=$('game');if(!document.body.classList.contains(
 const gameStageObserver=new ResizeObserver(()=>fitGameCanvas());gameStageObserver.observe(document.querySelector('.gameStage'));
 window.addEventListener('resize',resizeGameCanvas);resizeGameCanvas();arrangeControls('game');
 
-// v2.3: enter immersive mode on user tap, with CSS fallback for iOS Safari.
+// v2.5: immersive mode only on mobile/tablet user tap, with CSS fallback for iOS Safari.
 let gameFullscreen=false;
-function mobileGameDevice(){return window.matchMedia('(pointer:coarse), (max-width:900px)').matches;}
+function mobileGameDevice(){
+ // Desktop PCs (including touch-enabled Windows laptops) must never auto-enter immersive mode.
+ // iPhone/Android phones and tablets retain the app-like immersive experience.
+ const ua=navigator.userAgent||'';
+ const handheld=/iPhone|iPod|Android.*Mobile|Windows Phone/i.test(ua);
+ const tablet=/iPad|Android(?!.*Mobile)/i.test(ua)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+ return handheld||tablet;
+}
 function enterGameFullscreen(){
  if(mode!=='game'||!mobileGameDevice()||gameFullscreen)return;
  gameFullscreen=true;document.body.classList.add('gameImmersive');resizeGameCanvas();requestAnimationFrame(fitGameCanvas);
@@ -314,7 +330,20 @@ function exitGameFullscreen(){
 $('exitGameFull').onclick=exitGameFullscreen;
 // Prevent touch swipes on the playing surface from scrolling the page.
 $('gamePanel').addEventListener('touchmove',e=>{if(gameFullscreen&&e.cancelable)e.preventDefault();},{passive:false});
-$('play').onclick=()=>{enterGameFullscreen();start();};$('pause').onclick=pause;$('stop').onclick=()=>{stop();exitGameFullscreen();};$('modeGame').onclick=()=>switchMode('game');$('modeScore').onclick=()=>switchMode('score');$('modeEdit').onclick=()=>switchMode('edit');document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));for(const [id,hand] of [['strikeL','L'],['strikeR','R']]){const el=$(id);el.addEventListener('pointerdown',e=>{e.preventDefault();strike(hand);});}document.addEventListener('keydown',e=>{
+$('play').onclick=()=>{enterGameFullscreen();start();};$('pause').onclick=pause;$('stop').onclick=()=>{stop();exitGameFullscreen();};$('modeGame').onclick=()=>switchMode('game');$('modeScore').onclick=()=>switchMode('score');$('modeEdit').onclick=()=>switchMode('edit');document.querySelectorAll('[data-section]').forEach(b=>b.onclick=()=>switchSection(b.dataset.section));// v2.6: tap the actual drum heads on the canvas, with multi-touch support.
+// Canvas coordinates are calculated from its displayed rectangle, so portrait scaling
+// never changes the tap position. Only the lower drum region is interactive.
+$('game').addEventListener('pointerdown',e=>{
+ if(mode!=='game')return;
+ e.preventDefault();
+ const canvas=$('game'),r=canvas.getBoundingClientRect();
+ const x=(e.clientX-r.left)*canvas.width/r.width;
+ const y=(e.clientY-r.top)*canvas.height/r.height;
+ const hitY=canvas.height-158,centerX=canvas.width/2;
+ if(y<hitY-115||y>hitY+110||x<centerX-205||x>centerX+205)return;
+ strike(x<centerX?'L':'R');
+},{passive:false});
+document.addEventListener('keydown',e=>{
  // 物理キーで判定するため、かな入力・英数入力の違いに依存しない。
  // ボタンのフォーカスは演奏を妨げない。数値入力など編集中だけ除外。
  const target=e.target;
